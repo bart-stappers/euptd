@@ -1,6 +1,11 @@
 import streamlit as st
 import pandas as pd
 
+from src.preproc import build_pay_level
+from src.preproc import build_variable_pay_level
+from src.statistics import calculate_gender_pay_gap
+from src.statistics import calculate_variable_gender_pay_gap
+
 
 def set_page_config():
     """Configure Streamlit page settings."""
@@ -26,9 +31,9 @@ def read_data():
         return None
 
 
-def column_selection(df):
-    """Render column selection UI and return chosen names."""
-    st.header("Column selection")
+def column_mapping(df):
+    """Render column mapping UI and return chosen names."""
+    st.header("Column mapping")
     cols = list(df.columns)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -48,11 +53,29 @@ def column_selection(df):
     mapping = {
         "gender": gender_col,
         "scale": scale_col,
-        "fte_col": fte_col,
-        "sales_col": sales_col,
+        "fte": fte_col,
+        "sales": sales_col,
         "monthly": monthly_col,
         "vacation": vacation_col,
-        "bonus_col": bonus_col,
-        "car_col": car_col,
+        "bonus": bonus_col,
+        "car": car_col,
     }
     return mapping
+
+
+def render_statistics(df, mapping):
+    """Render required statistics"""
+    st.header("Unadjusted pay transparency statistics")
+
+    df = build_pay_level(df, mapping)
+    df = build_variable_pay_level(df, mapping)
+
+    gpg = calculate_gender_pay_gap(df, mapping)
+    st.metric("Gender pay gap", f"{gpg:.2f}%")
+
+    var_gpg = calculate_variable_gender_pay_gap(df, mapping)
+    st.metric(
+        "Gender pay gap in complementary or variable components", f"{var_gpg:.2f}%"
+    )
+
+    return df
