@@ -1,6 +1,7 @@
 from src.app import set_page_config
 from src.app import read_data
-from src.app import column_selection
+from src.app import column_mapping
+from src.app import render_statistics
 
 
 def main():
@@ -11,8 +12,12 @@ def main():
     if df is None:
         return
 
-    mapping = column_selection(df)
+    mapping = column_mapping(df)
     if mapping is None:
+        return
+
+    stats = render_statistics(df, mapping)
+    if stats is None:
         return
 
 
